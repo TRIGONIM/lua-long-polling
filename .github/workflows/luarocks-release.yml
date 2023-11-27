@@ -1,0 +1,30 @@
+# source: https://github.com/TRIGONIM/lua-express/blob/main/.github/workflows/luarocks-release.yml
+name: "Upload to Luarocks"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  luarocks-upload:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Upload to LuaRocks
+        uses: nvim-neorocks/luarocks-tag-release@v4
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        with:
+          summary: "A primitive implementation of the long-polling algorithm"
+          detailed_description: |
+            On github you can find an example of a web server implementation using this library.
+            Link: https://github.com/TRIGONIM/lua-long-polling
+            redis-lua (https://luarocks.org/modules/nrk/redis-lua) is an optional requirenment
+            for those who want to use the redis storage.
+          dependencies: |
+            copas
+            lua-cjson
+          labels: |
+            long-polling
+            async

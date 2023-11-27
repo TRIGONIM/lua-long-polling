@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  long-polling:
+    build: .
+    # user: '1000'
+    restart: always
+    env_file: .env
+    # volumes: # development
+    #   - $PWD/:/app
+    init: true # to kill faster via ctrl + c
+    # command: lua -e 'while true do end' # if you need to exec bash
+    ports:
+      - 3000:3000
