@@ -13,7 +13,7 @@ function MT.__index(wrapped_client, method_name)
 			return redq.run_method_safe(wrapped_client, method_name, ...)
 		end
 	else
-		print("Attempting to access a field instead of the method", method_name)
+		-- print("redis-safe: Attempting to access a field instead of the method", method_name)
 		return redis_client[method_name]
 	end
 end

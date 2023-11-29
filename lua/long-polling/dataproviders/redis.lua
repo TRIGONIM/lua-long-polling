@@ -23,6 +23,7 @@ function MT:get_updates(channel, offset)
 
 	local need_elements = total - offset
 	local updates = redis:lrange(prefix .. "updates:" .. channel, -need_elements, -1)
+	redis:quit()
 	return updates, total
 end
 
@@ -30,12 +31,16 @@ function MT:add_update(channel, data)
 	local opts = self.opts
 	local prefix, ttl, max_updates = opts.data_prefix, opts.data_ttl, opts.max_updates
 	local redis = self:getcon()
-	local total = tonumber(redis:incr(prefix .. "total:" .. channel))
+
+	redis:multi() -- true
+	redis:incr  (prefix .. "total:"   .. channel) -- {queued = true}
 	redis:expire(prefix .. "total:"   .. channel, ttl)
 	redis:rpush (prefix .. "updates:" .. channel, data)
 	redis:ltrim (prefix .. "updates:" .. channel, -max_updates, -1)
 	redis:expire(prefix .. "updates:" .. channel, ttl)
-	return total
+	local results = redis:exec() -- {5882, 1, 31, true, 1}
+	redis:quit()
+	return results[1] -- incr total
 end
 
 function MT.new(opts)
@@ -49,16 +54,7 @@ function MT.new(opts)
 	opts.redis.port = opts.redis.port or os.getenv("REDIS_PORT")
 	opts.redis.pass = opts.redis.pass or os.getenv("REDIS_PASS")
 
-	local obj = setmetatable({opts = opts}, MT)
-
-	-- require("gmod.globals").PrintTable({opts = opts})
-	-- require("copas").addthread(function()
-	-- 	local redis = obj:getcon()
-	-- 	redis:set("keklol", "kek")
-	-- 	print("keklol", redis:get("keklol"))
-	-- end)
-
-	return obj
+	return setmetatable({opts = opts}, MT)
 end
 
 return MT
