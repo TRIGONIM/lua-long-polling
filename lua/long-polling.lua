@@ -17,6 +17,7 @@ end
 function MT:publish_new(channel, data)
 	local total = self:add_update(channel, data)
 	self.pubsub:publish(channel, {update = data, total = total})
+	return total
 end
 
 function MT:get_news(channel, offset, timeout)
