@@ -40,10 +40,19 @@ docker run --env-file .env -p 3000:3000 ghcr.io/trigonim/lua-long-polling:latest
 
 # use as lib for your own server implementations
 luarocks install lua-long-polling
-# then:
+# then (server):
 # local dataprovider_obj = require("long-polling.dataproviders.localtable").new()
 # local longpolling = require("long-polling").new(dataprovider_obj)
+# or (client):
+# local kupol = require("long-polling.client")
+# local polling = kupol.new("https://poll.def.pm")
+# polling:subscribe(function(updtbl) print(updtbl.key) end, nil, 30)
+# polling:publish({key = "value"})
 ```
+
+# Available ENV variables for server creation
+
+All available vars are listed in [`.env-example`](https://github.com/TRIGONIM/lua-long-polling/blob/main/.env-example)
 
 # Local development
 

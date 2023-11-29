@@ -2,10 +2,6 @@ package.path = string.format("%s;%s", "./lua/?.lua", package.path)
 
 io.stdout:setvbuf("no") -- faster prints without buffering
 
-local lrpath  = "/home/ubuntu/.luarocks"
-package.path  = string.format("%s;%s", lrpath .. "/share/lua/5.1/?.lua;" .. lrpath .. "/share/lua/5.1/?/init.lua", package.path)
-package.cpath = string.format("%s;%s", lrpath .. "/lib/lua/5.1/?.so", package.cpath)
-
 local dataprovider = os.getenv("DATA_PROVIDER") or "localtable"
 local dataprovider_obj = require("long-polling.dataproviders." .. dataprovider).new()
 local longpolling = require("long-polling").new(dataprovider_obj)
@@ -29,7 +25,7 @@ end
 local express = require("express")
 local app = express()
 
-app:set("trust proxy", {"uniquelocal"}) -- correct recognition of req:ip() inside docker
+app:set("trust proxy", {"uniquelocal"}) -- correct recognition of req:ip() inside the docker container
 
 -- log requests
 app:use(function(req, res, next)
@@ -81,11 +77,11 @@ local function getUpdates(req, res)
 	})
 end
 
-app:post('/:channel/pushUpdates', pushUpdates)
-app:post('/:channel', pushUpdates)
+app:post("/:channel/pushUpdates", pushUpdates)
+app:post("/:channel", pushUpdates)
 
-app:get('/:channel/getUpdates', getUpdates)
-app:get('/:channel', getUpdates)
+app:get("/:channel/getUpdates", getUpdates)
+app:get("/:channel", getUpdates)
 
 app:use(function(err, _, res, next)
 	if type(err) == "table" and err.body then -- bodyparser middleware

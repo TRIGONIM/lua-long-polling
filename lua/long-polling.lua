@@ -22,7 +22,7 @@ end
 
 function MT:get_news(channel, offset, timeout)
 	local data, total = self:get_updates(channel, offset)
-	if (#data > 0) or (offset > total) or (timeout == 0) then return data, total end -- return immediately
+	if (#data > 0) or (offset > total) or (timeout <= 0) then return data, total end -- return immediately
 
 	-- \/ #data == 0, so we need to wait for updates
 
@@ -51,7 +51,11 @@ end
 
 function lp.new(dataprovider_obj)
 	local dp = dataprovider_obj
-		or require("long-polling.dataproviders.localtable").new()
+	if type(dataprovider_obj) == "string" then
+		dp = require("long-polling.dataproviders." .. dataprovider_obj).new()
+	else
+		dp = dp or require("long-polling.dataproviders.localtable").new()
+	end
 
 	assert(dp.get_updates and dp.add_update,
 		"dataprovider must have get_updates and add_update methods")
