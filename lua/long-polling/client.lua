@@ -6,7 +6,7 @@ MT.__index = MT
 function MT:publish(tData)
 	local body = kupol.json_encode(tData)
 	local res, code = kupol.http_post(self.url, body)
-	return code == 202 or res == "OK", code
+	return code == 201 or res == "OK", code
 end
 
 function MT:get(last_id, timeout)
