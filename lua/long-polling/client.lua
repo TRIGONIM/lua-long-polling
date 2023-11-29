@@ -1,141 +1,91 @@
--- 🗒️ #NOTE
--- This file is just a demo of my old client implementation.
--- I don't have time now to rewrite it and make it applicable to a wide audience.
--- You can do it instead of me by sending a pull request 💖
+local kupol = {}
 
-local json_decode = require("gmod.util").JSONToTable
-local timer = require("gmod.timer") -- Simple
+local MT = {}
+MT.__index = MT
 
-local lolib    = require("tlib.includes.lolib")
----@diagnostic disable-next-line: undefined-global
-local http_get = http and http.Fetch or require("http_async").get
-local bib      = require("tlib.includes.bib")
-
-local kupol = {
-	log = lolib.new()
-}
-
-
-local log = kupol.log
-log.setFormat("{time} polling {message}")
-log.setCvar("kupol_logging_level", lolib.LEVELS.WARNING)
-
-
-local function get_updates(base_url, uid, sleep, ts, fOnResponse)
-	local url = base_url .. uid .. "?sleep=" .. (sleep or "") .. "&ts=" .. (ts or "")
-	log.info("http_get({})", url)
-	http_get(url, function(json)
-		log.debug("Body: {}", json)
-		local t = json_decode(json)
-		if t and t.ok then
-			fOnResponse(t)
-		else
-			local err = t and t.description or "response is not a json"
-			if not t then log.warning("body: {}", json) end
-			fOnResponse(false, err)
-		end
-	end, function(http_err)
-		fOnResponse(false, http_err)
-	end)
+function MT:publish(tData)
+	local body = kupol.json_encode(tData)
+	local res, code = kupol.http_post(self.url, body)
+	return code == 202 or res == "OK", code
 end
 
+function MT:get(last_id, timeout)
+	local paramstr = "?ts=" .. (last_id or "") .. "&sleep=" .. (timeout or "")
 
-function kupol.new(sUrl, uid, iTimeout)
-	local o = {uid = uid, url = sUrl, timeout = iTimeout, handler = false, running = false, stopping = false}
+	local body, code_or_err = kupol.http_get(self.url .. paramstr)
+	if not body then return false, code_or_err end
 
-	o.poll = function(ts, fOnResponse)
-		get_updates(o.url, o.uid, o.timeout, ts, fOnResponse)
-	end
-
-	local processResponse = function(requested_ts, res)
-		local remote_ts = res.ts
-
-		local a = remote_ts < requested_ts -- переезд, бэкап, обнуление временем
-		local b = #res.updates == 0 and requested_ts > remote_ts -- переход с dev на prod, где ts больше
-
-		if a or b then
-			local log_pattern = a and "ts сервера ({}) меньше локального ({})"
-				or "Похоже, что на сервере произошел баг или сервер изменился. ts {} prev {}"
-
-			log.warning(log_pattern, remote_ts, requested_ts)
-			bib.setNum("lp:ts:" .. o.uid, remote_ts)
-			requested_ts = remote_ts
-		end
-
-		local ts_diff = remote_ts - requested_ts
-		if #res.updates > 0 then
-			log.info("From uid {} received {} new messages. Ts diff: {} items", o.uid, #res.updates, ts_diff)
-		end
-
-		for _,upd in ipairs(res.updates) do
-			local i = bib.getNum("lp:ts:" .. o.uid, 0) + 1
-			bib.setNum("lp:ts:" .. o.uid, i) -- increment
-
-			local _, err = pcall(o.handler, upd)
-			if err then
-				log.error("Внутри хендлера произошла ошибка и работа чуть не прекратилась: {}", err)
-			end
-		end
-
-		if ts_diff > #res.updates then
-			log.warning("Апдейты для {} долго не запрашивались и {} шт утеряно", o.uid, ts_diff - #res.updates)
-			bib.setNum("lp:ts:" .. o.uid, remote_ts)
-		end
-	end
-
-	o.consume_updates = function()
-		local previous_ts = bib.getNum("lp:ts:" .. o.uid) or 0
-
-		o.poll(previous_ts, function(res, err)
-			if o.checkStopping() then return end
-
-			if res then
-				processResponse(previous_ts, res)
-				o.consume_updates()
-
-			else
-				log.error("Error: {}. Waiting 5 sec and retrying", err)
-				timer.Simple(5, o.consume_updates)
-			end
-		end)
-
-		return o
-	end
-
-	o.start = function(fHandler)
-		local stopping = o.stopping
-
-		o.running  = true
-		o.stopping = false
-		o.handler  = fHandler
-
-		if not stopping then
-			o.consume_updates()
-		end
-
-		return o
-	end
-
-	o.stop = function(fOnStopped)
-		fOnStopped = fOnStopped or function() end
-		if not o.running then fOnStopped() return end
-		o.stopping = fOnStopped
-		return o
-	end
-
-	o.checkStopping = function()
-		local onStopped = o.stopping
-		if onStopped then
-			o.stopping = false
-			o.running  = false
-			onStopped()
-			return true
-		end
-		return false
-	end
-
-	return o
+	local tData = kupol.json_decode(body)
+	return tData, body -- tData may be nil
 end
 
--- poller = kupol.new("https://example.com/", "", 3).start(PRINT)
+function MT:log(...)
+	print("Kupol: " .. string.format(...))
+end
+
+function MT:subscribe(fHandler, last_id, timeout)
+	kupol.thread_new(function() while true do
+		local to = last_id and timeout or 0 -- it's better if first request will be fast if last_id not provided
+		local tData, body = self:get(last_id, to)
+		if tData then
+			if (last_id or 0) > tData.ts then
+				self:log("🚧 ts on server is less than requested (%d < %d)", tData.ts, last_id)
+			end
+
+			local updates_should_be = tData.ts - (last_id or 0)
+			if updates_should_be > #tData.updates then
+				local updates_lost = updates_should_be - #tData.updates
+				self:log("🚧 updates lost: %d (got %d, expected %d)", updates_lost, #tData.updates, updates_should_be) -- too long haven't requested them
+			end
+
+			-- last_id = last_id and (last_id + #tData.updates) or tData.ts
+			last_id = tData.ts
+			for _, update in ipairs(tData.updates) do
+				local pcallok, res = pcall(fHandler, update, tData.ts)
+				if not pcallok then
+					self:log(debug.traceback("🆘 Kupol Error In The Handler Callback\n\t%s"), res)
+				end
+			end
+		else -- no tData
+			fHandler(false, body)
+			kupol.thread_pause(10)
+		end
+	end end) -- while true, thread
+end
+
+local copas_ok, copas = pcall(require, "copas") -- should be loaded before http_v2
+if copas_ok then
+	local http = require("http_v2") -- https://github.com/TRIGONIM/lua-requests-async/blob/main/lua/http_v2.lua
+	local async_request = http.copas_request
+
+	function kupol.http_post(url, data)
+		local body, code = async_request("POST", url, data, {["content-type"] = "application/json"})
+		return body, code
+	end
+
+	function kupol.http_get(url)
+		local body, code = async_request("GET", url)
+		return body, code
+	end
+
+	kupol.thread_new   = copas.addthread
+	kupol.thread_pause = copas.sleep
+else
+	-- e.g. in Garry's Mod
+	print("Kupol: looks like copas is not installed. So you should provide own kupol.http_* and kupol.thread_* functions")
+end
+
+local cjson_ok, cjson = pcall(require, "cjson.safe")
+if cjson_ok then
+	kupol.json_encode = cjson.encode
+	kupol.json_decode = cjson.decode
+else
+	print("Kupol: looks like lua-cjson is not installed. So you should provide own kupol.json_encode and kupol.json_decode functions")
+end
+
+-- url example: https://lp.example.com/channel
+function kupol.new(url)
+	return setmetatable({url = url}, MT)
+end
+
 return kupol
