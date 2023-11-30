@@ -8,6 +8,13 @@ local kupol = {}
 local MT = {}
 MT.__index = MT
 
+function MT:publish_async(tData, callback)
+	kupol.thread_new(function()
+		local ok, code = self:publish(tData)
+		if callback then callback(ok, code) end
+	end)
+end
+
 function MT:publish(tData)
 	local body = kupol.json_encode(tData)
 	local res, code = kupol.http_post(self.url, body)
@@ -25,7 +32,8 @@ function MT:get(last_id, timeout)
 end
 
 function MT:log(...)
-	print("Kupol: " .. string.format(...))
+	local prefix = ("Kupol (%s): "):format(self.url)
+	print(prefix .. string.format(...))
 end
 
 function MT:handle_error(err)
