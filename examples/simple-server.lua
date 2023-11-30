@@ -1,6 +1,8 @@
 -- Implementation of the most simple variant of long-polling server.
 -- All data is stored in RAM, so it will be lost after server restart.
 -- There is no request logging or error handling.
+-- If you need most advanced example, see init.lua in the project root.
+-- API Example:
 -- POST example.com/any_string?data=any_data => 200 OK
 -- GET  example.com/any_string?last_id=0&timeout=60 => 200 OK {"any_data"}
 

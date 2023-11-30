@@ -61,6 +61,5 @@ end)
 
 -- one time subscribing for receiving continious updates
 LP:subscribe(function(upd, ts)
-	if not upd then print("error in :subscribe method's callback", ts) return end
 	print("subscribe callback. upd received. Remote ts, incr:", ts, upd.i)
 end, nil, 5) -- 5 seconds timeout

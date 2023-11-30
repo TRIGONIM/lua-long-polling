@@ -1,3 +1,8 @@
+-- local kupol  = require("long-polling.client")
+-- local client = kupol.new("https://lp.example.com/channel")
+-- By default, client use copas and lua-cjson, but you can use your own functions
+-- See how to use it in Garry's Mod (without copas and cjson) in examples/
+
 local kupol = {}
 
 local MT = {}
@@ -21,6 +26,10 @@ end
 
 function MT:log(...)
 	print("Kupol: " .. string.format(...))
+end
+
+function MT:handle_error(err)
+	self:log("🆘 Error\n\t%s", err)
 end
 
 function MT:subscribe(fHandler, last_id, timeout)
@@ -47,7 +56,7 @@ function MT:subscribe(fHandler, last_id, timeout)
 				end
 			end
 		else -- no tData
-			fHandler(false, body)
+			self:handle_error(body)
 			kupol.thread_pause(10)
 		end
 	end end) -- while true, thread

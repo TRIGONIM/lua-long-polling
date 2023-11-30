@@ -1,6 +1,6 @@
 package.path = string.format("%s;%s", "./lua/?.lua", package.path)
 
-io.stdout:setvbuf("no") -- faster prints without buffering
+io.stdout:setvbuf("no") -- faster stdout without buffering
 
 local dataprovider = os.getenv("DATA_PROVIDER") or "localtable"
 local dataprovider_obj = require("long-polling.dataproviders." .. dataprovider).new()

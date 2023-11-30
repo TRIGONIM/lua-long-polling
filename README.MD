@@ -12,11 +12,13 @@ _source: javascript.info_
 - Tested in a production environment
 - docker ready
 - You can specify predefined parameters to be added to each update object, which is useful when you want to recognize different services that send updates to the same link.
+- Ability to customize the amount of data stored and the storage time (for redis) so that no garbage is stored
 
 # Uses:
 
 - In environments where it is not possible to create a web server (e.g. in a Garry's Mod game), but getting "webhooks" is necessary
 - As a single point of collecting webhooks, for example to get updates from all your Telegram bots with just one request. To do this, make `https://api.telegram.org/bot$TOKEN/setWebhook?url=https://your.app/SomeS3cretP@th?this_key=and_value&will_be=merged_with_updates_sent_by_telegram&botname=some_id`.
+- Simple chat-like services implementations
 
 # Server API:
 
@@ -26,6 +28,10 @@ _source: javascript.info_
 - **POST** --type `application/json` --data `{"a": "b"}` `http://your.app/anySecretPath?merge=me`. The final update will looks like this: `{"a": "b", "merge": "me"}`
 
 No authorization. With API features in mind, you can use your server as a public API, because no one client will be able to get the other's data without knowing its "secret path". It's like in blockchain.
+
+**Pro tip:** If you want to use Traefik as web proxy (nginx is fine without it), you may need to configure `maxIdleConnsPerHost=-1` as Traefik has a limit of active connections and disconnects the excess ones with error 500
+
+**👀 Test server:** poll.def.pm. But please, don't use it in production because I can turn it off at any moment.
 
 # Usage:
 
