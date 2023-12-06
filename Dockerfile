@@ -2,6 +2,7 @@ FROM defaced/lua-express:latest
 
 RUN luarocks install copas \
 	&& luarocks install lua-cjson \
+	&& luarocks install lua-express-middlewares \
 	&& luarocks install redis-lua
 
 # redis is optional. Only for DATA_PROVIDER=redis
