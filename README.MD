@@ -76,7 +76,7 @@ All available vars are listed in [`.env-example`](https://github.com/TRIGONIM/lu
 
 # TODO:
 
-- Move out `bodyparser`, `type-is` and `rate-limiter` (and `cookie-parser` from the express repository) into separate repo like `lua-express-middlewares` or `lua-express-modules`
-- The same for `redis-safe`
+- Move out `redis-safe` into separate repo
 - Create the `mysql` dataprovider, using [luasocket-mysql](https://github.com/TRIGONIM/luasocket-mysql) driver
+- Also create the `filesystem` dataprovider
 

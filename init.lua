@@ -3,8 +3,7 @@ package.path = string.format("%s;%s", "./lua/?.lua", package.path)
 io.stdout:setvbuf("no") -- faster stdout without buffering
 
 local dataprovider = os.getenv("DATA_PROVIDER") or "localtable"
-local dataprovider_obj = require("long-polling.dataproviders." .. dataprovider).new()
-local longpolling = require("long-polling").new(dataprovider_obj)
+local longpolling = require("long-polling").new(dataprovider)
 
 local json_encode = require("cjson.safe").encode
 local json_decode = require("cjson.safe").decode
@@ -39,9 +38,9 @@ app:use(function(req, res, next)
 end)
 
 -- parse body as json
-app:use(require("misc.bodyparser").json({type = "*/*"}))
+app:use(require("body-parser").json({type = "*/*"})) -- https://github.com/TRIGONIM/lua-express-middlewares
 
-local rate_limiter = require("misc.rate-limiter")
+local rate_limiter = require("rate-limiter-simple") -- https://github.com/TRIGONIM/lua-express-middlewares
 app:use(rate_limiter({
 	frame_time = 60,
 	limit_amount = 60,
