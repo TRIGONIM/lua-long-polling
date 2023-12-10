@@ -87,6 +87,17 @@ function redq.copas_socket(host, port, timeout, tcp_nodelay)
 	return sock
 end
 
+local auth_client = function(redis_client, password)
+	if password then
+		local auth_ok, err = pcall(redis_client.auth, redis_client, password)
+		local all_ok = auth_ok or err:find("called without any password configured")
+		if not all_ok then
+			print("redis auth error: " .. err)
+			error(err)
+		end
+	end
+end
+
 function redq.reconnect(redis_client, opts)
 	local sock = redis_client.network.socket
 	sock:close()
@@ -100,8 +111,8 @@ function redq.reconnect(redis_client, opts)
 		redis_client.network.socket = new_redis_client.network.socket
 	end
 
-	if opts.password then redis_client:auth(opts.password) end
-	if opts.db       then redis_client:select(opts.db) end
+	auth_client(redis_client, opts.password)
+	if opts.db then redis_client:select(opts.db) end
 end
 
 function redq.connect(opts)
@@ -110,8 +121,8 @@ function redq.connect(opts)
 	end
 
 	local redis_client = redis.connect(opts) -- has .network.socket field
-	if opts.password then redis_client:auth(opts.password) end
-	if opts.db       then redis_client:select(opts.db) end
+	auth_client(redis_client, opts.password)
+	if opts.db then redis_client:select(opts.db) end
 	opts.socket = nil -- we don't need it anymore
 	return redis_client
 end
