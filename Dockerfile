@@ -1,4 +1,4 @@
-FROM defaced/lua-express:latest
+FROM ghcr.io/trigonim/lua-express:main
 
 RUN luarocks install copas \
 	&& luarocks install lua-cjson \
