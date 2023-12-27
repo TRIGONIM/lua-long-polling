@@ -56,7 +56,7 @@ local function pushUpdates(req, res)
 	local update_json = json_encode(updateObj)
 	local total = longpolling:publish_new(channel, update_json)
 
-	res:set("X-Total-Updates", total):send("OK")
+	res:set("X-Total-Updates", total):send(req.query.reply_with or "OK")
 end
 
 local function getUpdates(req, res)
