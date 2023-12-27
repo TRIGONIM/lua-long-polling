@@ -76,6 +76,10 @@ local function getUpdates(req, res)
 	})
 end
 
+app:all("/", function(req, res)
+	res:redirect("https://github.com/TRIGONIM/lua-long-polling")
+end)
+
 app:post("/:channel/pushUpdates", pushUpdates)
 app:post("/:channel", pushUpdates)
 
