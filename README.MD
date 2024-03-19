@@ -8,7 +8,7 @@
 Запуск через docker services (lua-polling). sxu polling
 Релиз имейджа срабатывает по крону и тегу (формат v*.*.*)
 Релиз luarocks только по тегу v*
-Деплой прод `docker pull ghcr.io/trigonim/lua-long-polling:main`, затем из `sxu polling` `dc up -d lua-polling`
+Деплой прод `docker pull ghcr.io/trigonim/lua-long-polling:latest`, затем из `sxu polling` `dc up -d lua-polling`
 -->
 
 # lua-long-polling
