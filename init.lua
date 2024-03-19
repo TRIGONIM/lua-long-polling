@@ -42,8 +42,8 @@ app:use(require("body-parser").json({type = "*/*"})) -- https://github.com/TRIGO
 
 local rate_limiter = require("rate-limiter-simple") -- https://github.com/TRIGONIM/lua-express-middlewares
 app:use(rate_limiter({
-	frame_time = 60,
-	limit_amount = 60,
+	frame_time   = tonumber(os.getenv("RATE_LIMIT_FRAME")) or 60,
+	limit_amount = tonumber(os.getenv("RATE_LIMIT_LIMIT")) or 60,
 }))
 
 local function pushUpdates(req, res)

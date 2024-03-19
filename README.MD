@@ -1,3 +1,16 @@
+<!-- personal notes
+
+Код редачить в vscode рабоей области "lua".
+Тест dev без домена (.env upstash):
+- docker build -t lp:latest . && docker run --env-file .env -p 3010:3000 -v $PWD/:/app lp:latest
+- curl --verbose -X POST -H "Content-Type application/json" -d '{"a": 1}' "http://ip:3010/SECRET_UID"
+           /\ в хедерах рейт лимиты
+Запуск через docker services (lua-polling). sxu polling
+Релиз имейджа срабатывает по крону и тегу (формат v*.*.*)
+Релиз luarocks только по тегу v*
+Деплой прод `docker pull ghcr.io/trigonim/lua-long-polling:main`, затем из `sxu polling` `dc up -d lua-polling`
+-->
+
 # lua-long-polling
 
 A simple [long-polling](https://javascript.info/long-polling) server (and client) written in Lua.
