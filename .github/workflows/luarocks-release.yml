@@ -1,21 +1,21 @@
 # source: https://github.com/TRIGONIM/lua-express/blob/main/.github/workflows/luarocks-release.yml
-name: "Upload to Luarocks"
+name: "Luarocks Release"
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ "main" ]
+    tags: [ "v*.*.*" ]
 
 jobs:
-  luarocks-upload:
-    runs-on: ubuntu-22.04
+  luarocks-release:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4.1.2
-      - name: Upload to LuaRocks
-        uses: nvim-neorocks/luarocks-tag-release@v4
+      - uses: actions/checkout@v4
+      - uses: nvim-neorocks/luarocks-tag-release@v7
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
         with:
+          extra_luarocks_args: --force # update lr version on commit
           summary: "A primitive implementation of the long-polling algorithm"
           detailed_description: |
             On github you can find an example of a web server implementation using this library.
