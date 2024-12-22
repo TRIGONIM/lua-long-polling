@@ -18,13 +18,28 @@ function MT:get_updates(channel, offset)
 	local prefix = self.opts.data_prefix
 	local redis = self:getcon()
 
-	local total = tonumber(redis:get(prefix .. "total:" .. channel)) or 0
-	if offset >= total then return {}, total end -- redis can't return empty list when need_elements == 0
+	-- The reason why there is script instead of just commands:
+	-- https://chatgpt.com/share/67686def-c558-8004-893a-c372405c2a8f
+	local script = [[
+		local total_key   = KEYS[1]
+		local updates_key = KEYS[2]
+		local offset = tonumber(ARGV[1])
 
-	local need_elements = total - offset
-	local updates = redis:lrange(prefix .. "updates:" .. channel, -need_elements, -1)
+		local total = tonumber(redis.call('get', total_key)) or 0
+		if offset >= total then return {{}, total} end
+
+		local need_elements = total - offset
+		local updates = redis.call('lrange', updates_key, -need_elements, -1)
+
+		return {updates, total}
+	]]
+
+	local total_key   = prefix .. "total:"   .. channel
+	local updates_key = prefix .. "updates:" .. channel
+	local result = redis:eval(script, 2, total_key, updates_key, offset)
 	redis:quit()
-	return updates, total
+
+	return result[1], result[2]
 end
 
 function MT:add_update(channel, data)
