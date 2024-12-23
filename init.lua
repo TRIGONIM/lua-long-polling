@@ -1,3 +1,5 @@
+local APP_VERSION = "v1.3.1" -- #todo automate
+
 package.path = string.format("%s;%s", "./lua/?.lua", package.path)
 
 io.stdout:setvbuf("no") -- faster stdout without buffering
@@ -40,6 +42,11 @@ end)
 -- parse body as json
 app:use(require("body-parser").json({type = "*/*"})) -- https://github.com/TRIGONIM/lua-express-middlewares
 
+app:use(function(_, res, next)
+	res:set("X-Powered-By", "lua-long-polling " .. APP_VERSION)
+	next()
+end)
+
 local rate_limiter = require("rate-limiter-simple") -- https://github.com/TRIGONIM/lua-express-middlewares
 app:use(rate_limiter({
 	frame_time   = tonumber(os.getenv("RATE_LIMIT_FRAME")) or 60,
@@ -56,7 +63,7 @@ local function pushUpdates(req, res)
 	local update_json = json_encode(updateObj)
 	local total = longpolling:publish_new(channel, update_json)
 
-	res:set("X-Total-Updates", total):send(req.query.reply_with or "OK")
+	res:set("X-Total-Updates", total):send("OK")
 end
 
 local function getUpdates(req, res)
@@ -76,7 +83,7 @@ local function getUpdates(req, res)
 	})
 end
 
-app:all("/", function(req, res)
+app:all("/", function(_, res)
 	res:redirect("https://github.com/TRIGONIM/lua-long-polling")
 end)
 
