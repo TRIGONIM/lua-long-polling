@@ -51,7 +51,7 @@ No authorization. With API features in mind, you can use your server as a public
 
 ## Client
 
-See [client/README.MD](https://github.com/TRIGONIM/lua-long-polling/blob/main/client/README.MD)
+See [client/README.MD](/lua/long-polling/client)
 
 ## Server
 
