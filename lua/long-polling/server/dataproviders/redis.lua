@@ -1,4 +1,4 @@
-local rds = require("misc.redis-safe")
+local rds = require("long-polling.server.misc.redis-safe")
 
 local MT = {}
 MT.__index = MT

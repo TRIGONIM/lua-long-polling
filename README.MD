@@ -2,11 +2,10 @@
 
 #todo
 
-Структура репозитория убогая.
-Переименовать его в типа "исходник poll.def.pm"? Или хотя бы конкретно "long-polling-server"
-Example папку убрать. Пример с нее переместить в ридми?
-В lua вот это вот misc/redis-safe.lua и misc/pubsub.lua какого черта оно там?
-Есть lua/long-polling/client.lua, а lua/long-polling/server.lua в сраке спрятан.
+Структура репозитория все еще убогая.
+
+Возможно, Dockerfile и docker-compsoe должен быть в папке application?
+А ридми должно ссылаться отдельно на клиент, на сервер и на приложение, где везде вложенный подридми
 
 -------
 
@@ -52,12 +51,7 @@ No authorization. With API features in mind, you can use your server as a public
 
 ## Client
 
-```lua
-local kupol = require("long-polling.client") -- also works in Garry's Mod with include()
-local polling = kupol.new("https://poll.def.pm/SomeSecretWord")
-polling:subscribe(function(upd, last_id) print(last_id, upd.key) end, nil, 30)
-polling:publish({key = "value"})
-```
+See [client/README.MD](https://github.com/TRIGONIM/lua-long-polling/blob/main/client/README.MD)
 
 ## Server
 

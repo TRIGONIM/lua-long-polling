@@ -1,7 +1,7 @@
-local pubsub = require("misc.pubsub")
+local pubsub = require("long-polling.server.misc.pubsub")
 local copas  = require("copas")
 
-local lp = {}
+local server = {}
 
 local MT = {}
 MT.__index = MT
@@ -49,12 +49,12 @@ function MT:get_news(channel, offset, timeout)
 end
 
 
-function lp.new(dataprovider_obj)
+function server.new(dataprovider_obj)
 	local dp = dataprovider_obj
 	if type(dataprovider_obj) == "string" then
-		dp = require("long-polling.dataproviders." .. dataprovider_obj).new()
+		dp = require("long-polling.server.dataproviders." .. dataprovider_obj).new()
 	else
-		dp = dp or require("long-polling.dataproviders.localtable").new()
+		dp = dp or require("long-polling.server.dataproviders.localtable").new()
 	end
 
 	assert(dp.get_updates and dp.add_update,
@@ -66,4 +66,4 @@ function lp.new(dataprovider_obj)
 	}, MT)
 end
 
-return lp
+return server
