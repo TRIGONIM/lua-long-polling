@@ -1,4 +1,5 @@
-local APP_VERSION = "v1.3.1" -- #todo automate
+local APP_VERSION = "v1.3.2" -- #todo automate
+print("LP Server Loaded. Version " .. APP_VERSION)
 
 package.path = string.format("%s;%s", "./lua/?.lua", package.path)
 

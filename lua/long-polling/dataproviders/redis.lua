@@ -21,8 +21,7 @@ function MT:get_updates(channel, offset)
 	-- The reason why there is script instead of just commands:
 	-- https://chatgpt.com/share/67686def-c558-8004-893a-c372405c2a8f
 	local script = [[
-		local total_key   = KEYS[1]
-		local updates_key = KEYS[2]
+		local total_key, updates_key = KEYS[1], KEYS[2]
 		local offset = tonumber(ARGV[1])
 
 		local total = tonumber(redis.call('get', total_key)) or 0
@@ -47,15 +46,27 @@ function MT:add_update(channel, data)
 	local prefix, ttl, max_updates = opts.data_prefix, opts.data_ttl, opts.max_updates
 	local redis = self:getcon()
 
-	redis:multi() -- true
-	redis:incr  (prefix .. "total:"   .. channel) -- {queued = true}
-	redis:expire(prefix .. "total:"   .. channel, ttl)
-	redis:rpush (prefix .. "updates:" .. channel, data)
-	redis:ltrim (prefix .. "updates:" .. channel, -max_updates, -1)
-	redis:expire(prefix .. "updates:" .. channel, ttl)
-	local results = redis:exec() -- {5882, 1, 31, true, 1}
+	-- Используем Lua-скрипт для атомарного выполнения всех операций
+	-- multi/exec почему-то не справился с этим
+	local script = [[
+		local total_key, updates_key = KEYS[1], KEYS[2]
+		local data, ttl, max_updates = ARGV[1], tonumber(ARGV[2]), tonumber(ARGV[3])
+
+		local new_total = redis.call('incr', total_key)
+		redis.call('expire', total_key, ttl)
+		redis.call('rpush',  updates_key, data)
+		redis.call('ltrim',  updates_key, -max_updates, -1)
+		redis.call('expire', updates_key, ttl)
+
+		return new_total
+	]]
+
+	local total_key   = prefix .. "total:"   .. channel
+	local updates_key = prefix .. "updates:" .. channel
+	local result = redis:eval(script, 2, total_key, updates_key, data, ttl, max_updates)
 	redis:quit()
-	return results[1] -- incr total
+
+	return result
 end
 
 function MT.new(opts)

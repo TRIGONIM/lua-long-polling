@@ -1,12 +1,15 @@
 <!-- personal notes
 
-Код редачить в vscode рабоей области "lua".
-Тест dev без домена (.env upstash):
-- docker build -t lp:latest . && docker run --env-file .env -p 3010:3000 -v $PWD/:/app lp:latest
-- curl --verbose -X POST -H "Content-Type application/json" -d '{"a": 1}' "http://ip:3010/SECRET_UID"
-           /\ в хедерах рейт лимиты
-Запуск через docker services (lua-polling). sxu polling
-Деплой прод `docker pull ghcr.io/trigonim/lua-long-polling:latest`, затем из `sxu polling` `dc up -d lua-polling`
+#todo
+
+Структура репозитория убогая.
+Переименовать его в типа "исходник poll.def.pm"? Или хотя бы конкретно "long-polling-server"
+Example папку убрать. Пример с нее переместить в ридми?
+В lua вот это вот misc/redis-safe.lua и misc/pubsub.lua какого черта оно там?
+Есть lua/long-polling/client.lua, а lua/long-polling/server.lua в сраке спрятан.
+
+-------
+
 -->
 
 # Long Polling Server
@@ -36,7 +39,8 @@ _source: javascript.info_
 ![api demo](https://file.def.pm/uV3R6f28.gif)
 
 - **GET** `http://your.app/anySecretPath?ts=0&sleep=10`, where `ts` is the last update id you received from polling server. Take it as an offset. The `sleep` parameter is the timeout during which the connection will be kept open until a new update is available. If an update arrives within this timeout, the connection will be immediately closed with the new update in the response in the following format: `{ts = 123, ok = true, updates = {your_update}}`
-- **POST** --type `application/json` --data `{"a": "b"}` `http://your.app/anySecretPath?merge=me`. The final update will looks like this: `{"a": "b", "merge": "me"}`
+- **POST** with json data to `http://your.app/anySecretPath?merge=me`. The final update will looks like this: `{"a": "b", "merge": "me"}`.
+  Curl example: `curl --verbose -d '{"a": 1}' "http://localhost:3000/SECRET_UID?merge=me"`
 
 No authorization. With API features in mind, you can use your server as a public API, because no one client will be able to get the other's data without knowing its "secret path". It's like in blockchain.
 
