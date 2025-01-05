@@ -1,4 +1,22 @@
-local APP_VERSION = "v1.3.3" -- #todo automate
+package.path = string.format("%s;%s", "../?.lua", package.path)
+package.path = string.format("%s;%s", "../?/init.lua", package.path)
+
+local function exec(cmd)
+    local handle = io.popen(cmd)
+    local result = handle:read("*a")
+    handle:close()
+    return result
+end
+
+print("pwd", exec("pwd"))
+print("ls", exec("ls"))
+
+
+io.stdout:setvbuf("no") -- faster stdout without buffering
+
+--------
+
+local APP_VERSION = "v1.3.4" -- #todo automate
 print("LP Server Loaded. Version " .. APP_VERSION)
 
 local dataprovider = os.getenv("DATA_PROVIDER") or "localtable"

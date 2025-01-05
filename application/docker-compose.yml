@@ -7,7 +7,7 @@ services:
     volumes:
       - lp-redis:/data
     ports:
-      - 8001:8001
+      - 8001:8001 # GUI (!)
     #   - 6379:6379
     # environment:
     #   - REDIS_ARGS=--requirepass qweqwe
@@ -19,7 +19,7 @@ services:
     # user: '1000'
     depends_on:
       - redis-stack
-    restart: always
+    # restart: always
     # env_file: .env
     environment:
       - LUA_ENV=development
@@ -33,7 +33,7 @@ services:
       - RATE_LIMIT_FRAME=30
       - RATE_LIMIT_LIMIT=120
     # volumes: # development
-    #   - $PWD/:/app
+    #   - $PWD/:/project
     init: true # to kill faster via ctrl + c
     # command: lua -e 'while true do end' # if you need to exec bash
     ports:
