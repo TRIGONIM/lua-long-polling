@@ -3,7 +3,7 @@ FROM ghcr.io/trigonim/lua-express:latest
 RUN luarocks install copas \
 	&& luarocks install lua-cjson \
 	&& luarocks install lua-express-middlewares \
-	# && luarocks install lua-long-polling \
+	&& luarocks install lua-long-polling main \
 	&& luarocks install redis-lua
 
 
