@@ -1,9 +1,3 @@
-<!-- personal notes
-
--------
-
--->
-
 # Long Polling Server
 
 A simple [long-polling](https://javascript.info/long-polling) server (and client) written in Lua.
@@ -11,15 +5,6 @@ A simple [long-polling](https://javascript.info/long-polling) server (and client
 ![demo image](https://file.def.pm/wq86G74W.svg)
 
 _source: javascript.info_
-
-## Features:
-
-- Can be used to deliver messages to multiple clients at the same time.
-- Tested in a production environment
-- docker ready
-- Contains Client and Server components. Also contains advanced application example
-- You can specify predefined parameters to be added to each update object, which is useful when you want to recognize different services that send updates to the same link.
-- Ability to customize the amount of data stored and the storage time (for redis) so that no garbage is stored
 
 ## Use cases:
 
@@ -30,36 +15,41 @@ _source: javascript.info_
 ## Project structure
 
 ```
- .
-├──  lua
-│   └──  long-polling
-│       ├──  application
-│       │   ├──  docker-compose.yml
-│       │   ├──  Dockerfile
-│       │   ├──  init.lua
-│       │   └──  README.MD
-│       ├──  client
-│       │   ├──  init.lua
-│       │   └──  README.MD
-│       └──  server
-│           ├──  dataproviders
-│           │   ├──  localtable.lua
-│           │   └──  redis.lua
-│           ├──  misc
-│           │   ├──  pubsub.lua
-│           │   └──  redis-safe.lua
-│           ├──  init.lua
-│           └──  README.MD
-├──  LICENSE
-└──  README.MD
+│ .
+├── examples
+│   ├── advanced
+│   │   ├── client.lua
+│   │   ├── docker-compose.yml
+│   │   ├── Dockerfile
+│   │   ├── README.MD
+│   │   └── server.lua
+│   └── simple
+│       ├── README.MD
+│       └── server.lua
+├── lua
+│   └── long-polling
+│       ├── dataproviders
+│       │   ├── localtable.lua
+│       │   └── redis.lua
+│       ├── misc
+│       │   ├── pubsub.lua
+│       │   └── redis-safe.lua
+│       └── init.lua
+├── LICENSE
+└── README.MD
 
 ```
 
-## Usage:
+## Documentation:
 
-- 🔥 [application](/lua/long-polling/application)
-- [client](/lua/long-polling/client)
-- [server](/lua/long-polling/server)
+Not ready yet. I am lazy. **But if you create an issue** so I can see that someone needs it, I will create code documentation instantly ⚡.
+
+But you can look at the examples below to understand what is what. Also, in the examples there are README files with a lot of useful information.
+
+## Application examples:
+
+- 🔥 [advanced](/examples/advanced). Source code of real-working application
+- [simple](/examples/simple). Simple to understand example of using the library
 
 ## TODO:
 

@@ -34,7 +34,7 @@ services:
       - RATE_LIMIT_LIMIT=120
     volumes: # development
       # - $PWD/../../:/app
-      - $PWD/../../lua/long-polling:/usr/local/share/lua/5.1/long-polling
+      - $PWD/../../lua/long-polling:/usr/local/share/lua/5.1/long-polling:ro # luarocks install and lua search path
     init: true # to kill faster via ctrl + c
     # command: lua -e 'while true do end' # if you need to exec bash
     ports:

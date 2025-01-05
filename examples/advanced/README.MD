@@ -1,15 +1,24 @@
-# Long Polling Application
+# Long Polling Server Application
 
-> 🇺🇸 English version not ready for now (I am lazy and don't want to translate it). You can use https://www.deepl.com/ to translate text on your own.
+In this folder you can find the source code of the server and client, which works at `poll.def.pm`.
 
-В папке находится исходный код поллинг клиента и сервера, который работает по адресу `poll.def.pm`.
+## Features
 
-## Run advanced application
+- Can be used to deliver messages to multiple clients at the same time.
+- Tested in a production environment
+- docker ready
+- You can specify predefined parameters to be added to each update object, which is useful when you want to recognize different services that send updates to the same link.
+- Ability to customize the amount of data stored and the storage time (for redis) so that no garbage is stored
+
+
+## Run the application
 
 ```bash
-cd directory_with_this_file/
+# git clone this repo
+# cd directory_with_this_file/
 
 # run server via docker-compose.yml (will build fresh image)
+# 👍 nice for development
 docker-compose up --build polling
 
 # alternatively run server via docker run (will use image from registry)
@@ -32,36 +41,36 @@ No authorization. With API features in mind, you can use your server as a public
 
 **👀 Test server:** poll.def.pm. But please, don't use it in production because I can turn it off at any moment.
 
-# Lua Long Polling Client Example
+## Client Example
 
 > 🇺🇸 English version not ready for now (I am lazy and don't want to translate it). You can use https://www.deepl.com/ to translate text on your own.
 
-Работает как в чистом Lua, так и на Garry's Mod сервере.
+Works both in pure Lua and on Garry's Mod server.
 
-На чистом Lua требует copas (а он luasocket), lua-requests-async (он тоже требует copas) и cjson.
+On pure Lua requires copas (and luasocket), lua-requests-async (it also requires copas) and cjson.
 
-## Использование
+### Usage
 
-**В гмоде** закинуть по любому пути, потом получить доступ к библиотеке через `kupol = include("path/to/client.lua")`. Автоматически в глобальное пространство ничего не добавляется.
+**In gmod** put any file in the path, then get access to the library through `kupol = include("path/to/client.lua")`. Nothing is added to the global space automatically.
 
-В чистом Lua можно использовать `kupol = require("long-polling.client")`.
+In pure Lua you can use `kupol = require("long-polling.client")`.
 
-## Пример
+### Example
 
 ```lua
 local kupol  = require("long-polling.client") -- also works in Garry's Mod with include()
 local Client = kupol.new("https://poll.def.pm/SomeSecretWord")
 
 
--- Получение данных
+-- Getting data
 Client:subscribe(function(upd, last_id)
-	print("LP сервер за все время принял " .. tostring(last_id) .. " обновлений")
-	print("Последнее обновление: " .. kupol.json_encode(upd))
-end, nil, 30) -- 30 это timeout в секундах.
--- nil – это последний id, который был получен (offset)
+	print("LP server received " .. tostring(last_id) .. " updates in all time")
+	print("Last update: " .. kupol.json_encode(upd))
+end, nil, 30) -- 30 is timeout in seconds.
+-- nil – this is the last id, which was received (offset)
 
 
--- Отправка данных
+-- Sending data
 kupol.thread_new(function()
 	for i = 1, 10 do
 		local ok, err = Client:publish({any = "value", counter = i})
