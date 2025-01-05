@@ -15,11 +15,16 @@ function MT:add_update(channel, data)
 	local storage = self.storage
 	if not storage[channel] then storage[channel] = {} end
 	storage[channel][#storage[channel] + 1] = data
+	if #storage[channel] > self.opts.max_updates then
+		table.remove(storage[channel], 1)
+	end
 	return #storage[channel]
 end
 
-function MT.new()
-	return setmetatable({storage = {}}, MT)
+function MT.new(opts)
+	opts = opts or {}
+	opts.max_updates = opts.max_updates or tonumber(os.getenv("CHANNEL_STORAGE_MAXSIZE")) or 30
+	return setmetatable({storage = {}, opts = opts}, MT)
 end
 
 return MT
