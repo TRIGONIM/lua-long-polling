@@ -1,6 +1,6 @@
 # Long Polling Server Application
 
-In this folder you can find the source code of the server and client, which works at `poll.def.pm`.
+In this folder you can find the source code of the [server](server.lua) (and [client](client.lua)), which works at `poll.def.pm` (working name – kupol).
 
 ## Features
 
@@ -43,22 +43,20 @@ No authorization. With API features in mind, you can use your server as a public
 
 ## Client Example
 
-> 🇺🇸 English version not ready for now (I am lazy and don't want to translate it). You can use https://www.deepl.com/ to translate text on your own.
-
 Works both in pure Lua and on Garry's Mod server.
 
 On pure Lua requires copas (and luasocket), lua-requests-async (it also requires copas) and cjson.
 
 ### Usage
 
-**In gmod** put any file in the path, then get access to the library through `kupol = include("path/to/client.lua")`. Nothing is added to the global space automatically.
+**In gmod** put the `client.lua` file at any place, then get access to the library through `kupol = include("path/to/client.lua")`. Nothing is added to the global space automatically.
 
-In pure Lua you can use `kupol = require("long-polling.client")`.
+In pure Lua you can use the same principle: `kupol = require("kupol.client")`.
 
 ### Example
 
 ```lua
-local kupol  = require("long-polling.client") -- also works in Garry's Mod with include()
+local kupol  = require("kupol.client") -- also works in Garry's Mod with include()
 local Client = kupol.new("https://poll.def.pm/SomeSecretWord")
 
 

@@ -54,6 +54,7 @@ But you can look at the examples below to understand what is what. Also, in the 
 ## TODO:
 
 - Move out `redis-safe` into separate repo
+- Split the library and application examples into separate repos. Need for the ability to do `require("kupol.server")` and `require("kupol.client")`
 - Create the `mysql` dataprovider, using [luasocket-mysql](https://github.com/TRIGONIM/luasocket-mysql) driver
 - Also create the `filesystem` dataprovider
 
