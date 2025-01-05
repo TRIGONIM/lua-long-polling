@@ -1,0 +1,41 @@
+volumes:
+  lp-redis:
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    volumes:
+      - lp-redis:/data
+    ports:
+      - 8001:8001 # GUI (!)
+    #   - 6379:6379
+    # environment:
+    #   - REDIS_ARGS=--requirepass qweqwe
+    #   - REDIS_PORT=6379
+    #   - REDIS_HOST=redis
+
+  polling:
+    build: .
+    # user: '1000'
+    depends_on:
+      - redis
+    # restart: always
+    # env_file: .env
+    environment:
+      - LUA_ENV=development
+      - DATA_PROVIDER=redis
+      - REDIS_HOST=redis
+      # - REDIS_PORT=6379
+      # - REDIS_PASS=qweqwe
+      - REDIS_PREFIX=
+      - REDIS_DATA_TTL=604800
+      - CHANNEL_STORAGE_MAXSIZE=30
+      - RATE_LIMIT_FRAME=30
+      - RATE_LIMIT_LIMIT=120
+    volumes: # development
+      # - $PWD/../../:/app
+      - $PWD/../../lua/long-polling:/usr/local/share/lua/5.1/long-polling
+    init: true # to kill faster via ctrl + c
+    # command: lua -e 'while true do end' # if you need to exec bash
+    ports:
+      - 3000:3000
