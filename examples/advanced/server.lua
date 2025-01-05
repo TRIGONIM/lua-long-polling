@@ -109,4 +109,10 @@ app:use(function(err, _, res, next)
 	return_error(res, 500, "Internal Server Error")
 end)
 
-app:listen(3000)
+app:listen(3000, function()
+	-- for i = 1, 40 do
+	-- 	longpolling:publish_new("test", json_encode({incr = i}))
+	-- end
+
+	print("Сервер запущен на порту 3000")
+end)

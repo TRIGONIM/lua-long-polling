@@ -2,29 +2,33 @@ local MT = {}
 MT.__index = MT
 
 function MT:get_updates(channel, offset)
-	local storage = self.storage
-	local total = storage[channel] and #storage[channel] or 0
+	local storage = self.storages[channel] or {}
+	if not storage.total then return {}, 0 end -- несуществующий channel, данные не добавлялись
+
+	local sub_last_n = storage.total - offset
 	local updates = {}
-	for i = offset + 1, total do
-		updates[#updates + 1] = storage[channel][i]
+	for i = #storage - sub_last_n + 1, #storage do
+		updates[#updates + 1] = storage[i]
 	end
-	return updates, total
+	return updates, storage.total
 end
 
 function MT:add_update(channel, data)
-	local storage = self.storage
-	if not storage[channel] then storage[channel] = {} end
-	storage[channel][#storage[channel] + 1] = data
-	if #storage[channel] > self.opts.max_updates then
-		table.remove(storage[channel], 1)
+	self.storages[channel] = self.storages[channel] or {}
+
+	local storage = self.storages[channel]
+	storage[#storage + 1] = data
+	storage.total = (storage.total or 0) + 1
+	if #storage > self.opts.max_updates then
+		table.remove(storage, 1)
 	end
-	return #storage[channel]
+	return storage.total
 end
 
 function MT.new(opts)
 	opts = opts or {}
 	opts.max_updates = opts.max_updates or tonumber(os.getenv("CHANNEL_STORAGE_MAXSIZE")) or 30
-	return setmetatable({storage = {}, opts = opts}, MT)
+	return setmetatable({storages = {}, opts = opts}, MT)
 end
 
 return MT
