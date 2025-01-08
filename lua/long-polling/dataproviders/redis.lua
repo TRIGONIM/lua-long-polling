@@ -3,6 +3,10 @@ local rds = require("long-polling.misc.redis-safe")
 local MT = {}
 MT.__index = MT
 
+-- Новый запрос - новое соединение. Спам выходит, но не очень критично.
+-- Переиспользовать нельзя.
+-- Потому что в многопотоке сбивается порядок чтение-запись с редиса и начинаются ошибки.
+-- Такая особенность либы. Например в JS либа реализована так, что в одном "потоке" идет запись, а в другом - чтение.
 function MT:getcon()
 	local opts = self.opts.redis
 	return rds.create(opts.own and opts or {
@@ -63,10 +67,10 @@ function MT:add_update(channel, data)
 
 	local total_key   = prefix .. "total:"   .. channel
 	local updates_key = prefix .. "updates:" .. channel
-	local result = redis:eval(script, 2, total_key, updates_key, data, ttl, max_updates)
+	local new_total = redis:eval(script, 2, total_key, updates_key, data, ttl, max_updates)
 	redis:quit()
 
-	return result
+	return new_total
 end
 
 function MT.new(opts)
