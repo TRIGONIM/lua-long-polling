@@ -5,8 +5,8 @@ io.stdout:setvbuf("no") -- faster stdout without buffering
 
 --------
 
-local APP_VERSION = "v1.4.0" -- #todo automate
-print("LP Server Loaded. Version " .. APP_VERSION)
+local APP_VERSION = "v1.5.0" -- #todo automate
+print("LP Server Loading. Version " .. APP_VERSION)
 
 local dataprovider = os.getenv("DATA_PROVIDER") or "localtable"
 local longpolling = require("long-polling").new(dataprovider)
@@ -91,10 +91,10 @@ app:all("/", function(_, res)
 	res:redirect("https://github.com/TRIGONIM/lua-long-polling")
 end)
 
-app:post("/:channel/pushUpdates", pushUpdates)
+app:post("/:channel/pushUpdates", pushUpdates) -- backward compatibility
 app:post("/:channel", pushUpdates)
 
-app:get("/:channel/getUpdates", getUpdates)
+app:get("/:channel/getUpdates", getUpdates) -- backward compatibility
 app:get("/:channel", getUpdates)
 
 app:use(function(err, _, res, next)
@@ -109,10 +109,4 @@ app:use(function(err, _, res, next)
 	return_error(res, 500, "Internal Server Error")
 end)
 
-app:listen(3000, function()
-	-- for i = 1, 40 do
-	-- 	longpolling:publish_new("test", json_encode({incr = i}))
-	-- end
-
-	print("Сервер запущен на порту 3000")
-end)
+app:listen(3000)

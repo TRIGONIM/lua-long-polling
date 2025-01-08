@@ -32,7 +32,6 @@ _source: javascript.info_
 │       │   ├── localtable.lua
 │       │   └── redis.lua
 │       ├── misc
-│       │   ├── pubsub.lua
 │       │   └── redis-safe.lua
 │       └── init.lua
 ├── LICENSE

@@ -23,7 +23,7 @@ services:
     # env_file: .env
     environment:
       - LUA_ENV=development
-      # - DATA_PROVIDER=redis
+      - DATA_PROVIDER=redis
       - REDIS_HOST=redis
       # - REDIS_PORT=6379
       # - REDIS_PASS=qweqwe
